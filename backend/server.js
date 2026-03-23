@@ -2,6 +2,7 @@ const http = require("http");
 const path = require("path");
 const { Server } = require("socket.io");
 require("dotenv").config();
+const express = require("express");
 
 // Import app and socket handler
 const app = require("./app");
@@ -22,6 +23,7 @@ const io = new Server(server, {
 // Initialize socket handler
 socketHandler(io);
 
+console.log(process.env.NODE_ENV);
 if (process.env.NODE_ENV === "production") {
   app.use(express.static(path.join(__dirname, "/frontendfix/distfix")));
 
