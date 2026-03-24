@@ -15,7 +15,6 @@ const { globalErrorHandler } = require("./middleware/globalErrorHandler");
 const app = express();
 
 // Security middleware
-import helmet from "helmet";
 
 app.use(
   helmet({
