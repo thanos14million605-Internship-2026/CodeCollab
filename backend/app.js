@@ -15,7 +15,35 @@ const { globalErrorHandler } = require("./middleware/globalErrorHandler");
 const app = express();
 
 // Security middleware
-app.use(helmet());
+import helmet from "helmet";
+
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+
+        scriptSrc: [
+          "'self'",
+          "'unsafe-inline'",
+          "'unsafe-eval'",
+          "https://cdn.jsdelivr.net",
+          "blob:",
+        ],
+
+        styleSrc: ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net"],
+
+        imgSrc: ["'self'", "data:", "https:"],
+
+        fontSrc: ["'self'", "data:"],
+
+        connectSrc: ["'self'", "wss:", "https://cdn.jsdelivr.net"],
+
+        workerSrc: ["'self'", "blob:"],
+      },
+    },
+  })
+);
 
 // CORS configuration
 app.use(
