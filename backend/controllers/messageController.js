@@ -5,6 +5,7 @@ const { asyncHandler } = require("../middleware/globalErrorHandler");
 // ✅ Create new message
 const createMessage = asyncHandler(async (req, res) => {
   const { room_id, message } = req.body;
+  console.log("Room Id", id, "Message", message);
 
   if (!room_id || !message) {
     return res.status(400).json({
