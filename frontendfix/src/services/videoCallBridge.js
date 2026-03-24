@@ -1,8 +1,8 @@
 // Video Call Bridge Service
 // This service bridges the gap between room participants and VideoSDK meetings
-import socketService from '../socket';
-import { createMeeting } from './videoSDKAPI';
-import toast from 'react-hot-toast';
+import socketService from "../socket";
+import { createMeeting } from "./videoSDKAPI";
+import toast from "react-hot-toast";
 
 class VideoCallBridge {
   constructor() {
@@ -20,26 +20,32 @@ class VideoCallBridge {
   async initiateCall(caller, receiver) {
     try {
       // Create a new VideoSDK meeting
-      const meetingId = await createMeeting({ token: window.videoSDKAuthToken });
-      
+      const meetingId = await createMeeting({
+        token: window.videoSDKAuthToken,
+      });
+
       // Store the active call
       this.activeCalls.set(receiver.user_id, meetingId);
-      
+
       // Send call invitation through socket
       socketService.sendVideoCallInvitation({
         toUserId: receiver.user_id,
         fromUser: caller,
         meetingId: meetingId,
-        type: 'videosdk'
+        type: "videosdk",
       });
-      
-      console.log('VideoSDK call initiated:', { caller: caller.name, receiver: receiver.name, meetingId });
+
+      console.log("VideoSDK call initiated:", {
+        caller: caller.name,
+        receiver: receiver.name,
+        meetingId,
+      });
       toast.success(`Calling ${receiver.name}...`);
-      
+
       return meetingId;
     } catch (error) {
-      console.error('Failed to initiate VideoSDK call:', error);
-      toast.error('Failed to start video call');
+      console.error("Failed to initiate VideoSDK call:", error);
+      toast.error("Failed to start video call");
       throw error;
     }
   }
@@ -47,30 +53,33 @@ class VideoCallBridge {
   // Handle incoming video call invitation
   handleIncomingCall(data) {
     const { fromUser, meetingId, type } = data;
-    
-    if (type === 'videosdk') {
+
+    if (type === "videosdk") {
       // Store incoming call
       this.incomingCalls.set(fromUser.id, meetingId);
-      
+
       // Trigger incoming call callback
       this.callbacks.onIncomingCall?.({
         fromUser,
         meetingId,
-        type: 'videosdk'
+        type: "videosdk",
       });
-      
+
       // Show toast notification with action
       toast.success(`Incoming video call from ${fromUser.name}`, {
         duration: 10000,
         action: {
-          label: 'Join',
+          label: "Join",
           onClick: () => {
             this.acceptCall(fromUser.id, meetingId);
-          }
-        }
+          },
+        },
       });
-      
-      console.log('Incoming VideoSDK call:', { fromUser: fromUser.name, meetingId });
+
+      console.log("Incoming VideoSDK call:", {
+        fromUser: fromUser.name,
+        meetingId,
+      });
     }
   }
 
@@ -78,81 +87,81 @@ class VideoCallBridge {
   acceptCall(fromUserId, meetingId) {
     // Remove from incoming calls
     this.incomingCalls.delete(fromUserId);
-    
+
     // Add to active calls
     this.activeCalls.set(fromUserId, meetingId);
-    
+
     // Trigger accept callback
     this.callbacks.onCallAccepted?.({
       fromUserId,
-      meetingId
+      meetingId,
     });
-    
-    toast.success('Call accepted');
+
+    toast.success("Call accepted");
   }
 
   // Reject incoming call
   rejectCall(fromUserId) {
     const meetingId = this.incomingCalls.get(fromUserId);
-    
+
     // Remove from incoming calls
     this.incomingCalls.delete(fromUserId);
-    
+
     // Notify caller that call was rejected
     socketService.sendVideoCallResponse({
       toUserId: fromUserId,
-      response: 'rejected',
-      meetingId: meetingId
+      response: "rejected",
+      meetingId: meetingId,
     });
-    
+
     // Trigger reject callback
     this.callbacks.onCallRejected?.({ fromUserId });
-    
-    toast.info('Call rejected');
+
+    toast.info("Call rejected");
   }
 
   // Handle call response
   handleCallResponse(data) {
     const { response, fromUserId, meetingId } = data;
-    
-    if (response === 'rejected') {
+
+    if (response === "rejected") {
       // Remove from active calls
       this.activeCalls.delete(fromUserId);
-      
+
       // Trigger reject callback
       this.callbacks.onCallRejected?.({ fromUserId });
-      
-      toast.info('Call was rejected');
-    } else if (response === 'accepted') {
+
+      toast.info("Call was rejected");
+    } else if (response === "accepted") {
       // Call was accepted, proceed with joining meeting
       this.callbacks.onCallAccepted?.({
         fromUserId,
-        meetingId
+        meetingId,
       });
-      
-      toast.success('Call accepted!');
+
+      toast.success("Call accepted!");
     }
   }
 
   // End call
   endCall(userId) {
     const meetingId = this.activeCalls.get(userId);
-    
+
     // Remove from active calls
     this.activeCalls.delete(userId);
     this.incomingCalls.delete(userId);
-    
+
     // Notify other user
     socketService.sendVideoCallResponse({
       toUserId: userId,
-      response: 'ended',
-      meetingId: meetingId
+      response: "ended",
+      meetingId: meetingId,
     });
-    
+
     // Trigger end callback
     this.callbacks.onCallEnded?.({ userId });
-    
-    toast.info('Call ended');
+
+    toast.info("Call ended");
   }
 
   // Get active calls
@@ -183,13 +192,20 @@ const videoCallBridge = new VideoCallBridge();
 
 // Setup socket event listeners for video call bridging
 export const setupVideoCallBridge = () => {
-  // Listen for video call invitations
-  socketService.socket?.on('video-call-invitation', (data) => {
+  if (!socketService.socket) {
+    console.warn("Socket not initialized yet");
+    return;
+  }
+
+  socketService.socket.off("video-call-invitation"); // prevent duplicates
+  socketService.socket.off("video-call-response");
+
+  socketService.socket.on("video-call-invitation", (data) => {
+    console.log("📞 Incoming call event received:", data);
     videoCallBridge.handleIncomingCall(data);
   });
 
-  // Listen for video call responses
-  socketService.socket?.on('video-call-response', (data) => {
+  socketService.socket.on("video-call-response", (data) => {
     videoCallBridge.handleCallResponse(data);
   });
 };
