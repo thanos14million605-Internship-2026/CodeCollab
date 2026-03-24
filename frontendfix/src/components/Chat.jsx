@@ -1,73 +1,39 @@
 import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Send, Smile, Users, MessageSquare } from "lucide-react";
-import { REACTIONS } from "../utils/constants";
-import socketService from "../socket";
-import toast from "react-hot-toast";
 import { useMessageStore } from "../store/messageStore";
+import { useAuthStore } from "../store/authStore";
+import toast from "react-hot-toast";
 
 const Chat = ({ roomId, participants }) => {
   const [newMessage, setNewMessage] = useState("");
-  const [showReactions, setShowReactions] = useState(false);
 
   const messagesEndRef = useRef(null);
-  const inputRef = useRef(null);
+  const { user } = useAuthStore();
 
-  // Zustand
   const { messages, getAllMessages, createMessage, addMessage } =
     useMessageStore();
 
-  // ✅ Auto scroll
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
-
+  // Auto scroll
   useEffect(() => {
-    scrollToBottom();
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // ✅ Fetch messages on mount / room change
+  // Fetch messages
   useEffect(() => {
-    if (roomId) {
-      getAllMessages(roomId);
-    }
+    if (roomId) getAllMessages(roomId);
   }, [roomId]);
 
-  // ✅ Socket listeners (REAL-TIME)
+  // Socket
   useEffect(() => {
-    const handleChatMessage = (event) => {
-      const message = event.detail;
-      addMessage(message); // 🔥 store handles append
-    };
-
-    const handleReaction = (event) => {
-      const { emoji, user } = event.detail;
-
-      const reactionMessage = {
-        id: Date.now(),
-        type: "reaction",
-        content: `${user.name} reacted with ${emoji}`,
-        user,
-        created_at: new Date(),
-        emoji,
-      };
-
-      addMessage(reactionMessage);
-    };
-
+    const handleChatMessage = (event) => addMessage(event.detail);
     window.addEventListener("chat-message", handleChatMessage);
-    window.addEventListener("reaction", handleReaction);
 
-    return () => {
-      window.removeEventListener("chat-message", handleChatMessage);
-      window.removeEventListener("reaction", handleReaction);
-    };
+    return () => window.removeEventListener("chat-message", handleChatMessage);
   }, []);
 
-  // ✅ Send message (API, NOT socket)
   const sendMessage = async (e) => {
     e.preventDefault();
-
     if (!newMessage.trim()) return;
 
     const text = newMessage.trim();
@@ -78,157 +44,90 @@ const Chat = ({ roomId, participants }) => {
       message: text,
     });
 
-    console.log(res);
-
-    if (!res.success) {
-      toast.error("Failed to send message");
-    }
+    if (!res.success) toast.error("Failed to send message");
   };
 
-  // ✅ Send reaction (still socket)
-  const sendReaction = (emoji) => {
-    socketService.sendReaction(emoji);
-    setShowReactions(false);
-  };
-
-  const formatTime = (date) => {
-    return new Date(date).toLocaleTimeString("en-US", {
+  const formatTime = (date) =>
+    new Date(date).toLocaleTimeString([], {
       hour: "2-digit",
       minute: "2-digit",
     });
-  };
 
   return (
-    <div className="chat-container h-full">
+    <div className="flex flex-col h-full min-h-0 bg-white border rounded-lg">
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-secondary-200">
+      <div className="flex justify-between items-center p-4 border-b shrink-0">
         <div className="flex items-center gap-2">
-          <MessageSquare className="w-5 h-5 text-gray-600" />
-          <h3 className="font-semibold text-gray-900">Chat</h3>
+          <MessageSquare size={18} />
+          <h3 className="font-semibold">Chat</h3>
         </div>
-        <div className="flex items-center gap-2">
-          <div className="flex items-center gap-1 text-sm text-gray-500">
-            <Users className="w-4 h-4" />
-            {participants.length}
-          </div>
+        <div className="flex items-center gap-1 text-sm text-gray-500">
+          <Users size={16} />
+          {participants.length}
         </div>
       </div>
 
-      {/* Messages */}
-      <div className="chat-messages">
+      {/* Messages (SCROLLABLE) */}
+      <div className="flex-1 min-h-0 overflow-y-auto px-4 py-3 space-y-3 chat-scroll">
         <AnimatePresence>
-          {messages.length === 0 ? (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="text-center text-gray-500 py-8"
-            >
-              <MessageSquare className="w-12 h-12 mx-auto mb-4 text-gray-300" />
-              <p>No messages yet</p>
-              <p className="text-sm mt-2">Start the conversation!</p>
-            </motion.div>
-          ) : (
-            messages.map((message) => (
+          {messages.map((message) => {
+            const isMe = message.user?.id === user?.id;
+
+            return (
               <motion.div
                 key={message.id}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.2 }}
-                className={`mb-4 ${
-                  message.type === "reaction" ? "text-center" : ""
-                }`}
+                className={`flex ${isMe ? "justify-end" : "justify-start"}`}
               >
-                {message.type === "reaction" ? (
-                  <div className="inline-flex items-center gap-2 px-3 py-1 bg-gray-100 rounded-full text-sm text-gray-600">
-                    <span>{message.emoji}</span>
-                    <span>{message.content}</span>
-                  </div>
-                ) : (
-                  <div className="flex gap-3">
-                    <div className="flex-shrink-0">
-                      <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center">
-                        <span className="text-white text-sm font-medium">
-                          {message.user?.name?.charAt(0).toUpperCase() || "U"}
-                        </span>
-                      </div>
+                <div
+                  className={`max-w-xs md:max-w-md px-4 py-2 rounded-lg shadow ${
+                    isMe
+                      ? "bg-blue-500 text-white rounded-br-none"
+                      : "bg-gray-200 text-black rounded-bl-none"
+                  }`}
+                >
+                  {!isMe && (
+                    <div className="text-xs font-semibold mb-1">
+                      {message.user?.name}
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-baseline gap-2 mb-1">
-                        <span className="font-medium text-gray-900 text-sm">
-                          {message.user?.name || "Unknown"}
-                        </span>
-                        <span className="text-xs text-gray-500">
-                          {formatTime(message.created_at)}
-                        </span>
-                      </div>
-                      <div className="text-gray-800 break-words">
-                        {message.content}
-                      </div>
-                    </div>
+                  )}
+
+                  <div>{message.content}</div>
+
+                  <div
+                    className={`text-[10px] mt-1 text-right ${
+                      isMe ? "text-blue-100" : "text-gray-500"
+                    }`}
+                  >
+                    {formatTime(message.created_at)}
                   </div>
-                )}
+                </div>
               </motion.div>
-            ))
-          )}
+            );
+          })}
         </AnimatePresence>
+
         <div ref={messagesEndRef} />
       </div>
 
       {/* Input */}
-      <div className="chat-input-container">
-        {/* Reactions */}
-        <AnimatePresence>
-          {showReactions && (
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 10 }}
-              className="mb-3 p-2 bg-gray-50 rounded-lg"
-            >
-              <div className="grid grid-cols-8 gap-1">
-                {REACTIONS.map((reaction) => (
-                  <button
-                    key={reaction.emoji}
-                    onClick={() => sendReaction(reaction.emoji)}
-                    className="p-2 hover:bg-gray-200 rounded transition-colors duration-200 text-lg"
-                  >
-                    {reaction.emoji}
-                  </button>
-                ))}
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
+      <div className="p-3 border-t bg-white shrink-0">
         <form onSubmit={sendMessage} className="flex gap-2">
-          <button
-            type="button"
-            onClick={() => setShowReactions(!showReactions)}
-            className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg"
-          >
-            <Smile className="w-5 h-5" />
+          <button type="button">
+            <Smile />
           </button>
 
           <input
-            ref={inputRef}
-            type="text"
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
-            placeholder="Type a message..."
-            className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
-            maxLength={500}
+            className="flex-1 border px-3 py-2 rounded"
+            placeholder="Type message..."
           />
 
-          <motion.button
-            type="submit"
-            disabled={!newMessage.trim()}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="p-2 bg-primary-600 hover:bg-primary-700 disabled:bg-gray-300 text-white rounded-lg"
-          >
-            <Send className="w-5 h-5" />
-          </motion.button>
+          <button className="bg-blue-500 text-white px-3 rounded">
+            <Send size={18} />
+          </button>
         </form>
       </div>
     </div>

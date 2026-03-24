@@ -32,7 +32,7 @@ const useMessageStore = create((set, get) => ({
       set({ isLoading: true, error: null });
 
       const response = await messageAPI.getAllMessages(roomId);
-
+      console.log("Response of getAllMessages", response);
       if (response.success) {
         const messages = response.data;
 

@@ -51,6 +51,7 @@ class Message {
         id: row.id,
         room_id: row.room_id,
         content: row.content,
+        user_id: row.user_id,
         message_type: row.message_type,
         created_at: row.created_at,
         user: {

@@ -57,16 +57,17 @@ const createMessage = asyncHandler(async (req, res) => {
 
 // ✅ Get all messages for a room
 const getAllMessages = asyncHandler(async (req, res) => {
-  const { room_id } = req.params;
+  const { roomId } = req.params;
 
-  if (!room_id) {
+  console.log("Room Id In Get All Messages", roomId);
+  if (!roomId) {
     return res.status(400).json({
       success: false,
       message: "room_id is required",
     });
   }
 
-  const messages = await Message.getMessages(room_id);
+  const messages = await Message.getMessages(roomId);
 
   res.status(200).json({
     success: true,

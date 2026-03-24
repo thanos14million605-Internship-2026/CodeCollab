@@ -201,7 +201,7 @@ const CodeEditorPage = () => {
       {/* Main Content */}
       <div className="flex-1 flex overflow-hidden">
         {/* Primary Content */}
-        <div className="flex-1 flex flex-col">
+        <div className="flex-1 flex flex-col min-h-0">
           {activeTab === "editor" && (
             <motion.div
               initial={{ opacity: 0, x: 20 }}
@@ -216,9 +216,9 @@ const CodeEditorPage = () => {
             <motion.div
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
-              className="flex-1"
+              className="flex-1 min-h-0"
             >
-              <Chat roomCode={roomCode} participants={participants} />
+              <Chat roomId={currentRoom.id} participants={participants} />
             </motion.div>
           )}
 
