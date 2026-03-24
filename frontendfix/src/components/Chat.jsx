@@ -78,6 +78,8 @@ const Chat = ({ roomId, participants }) => {
       message: text,
     });
 
+    console.log(res);
+
     if (!res.success) {
       toast.error("Failed to send message");
     }
