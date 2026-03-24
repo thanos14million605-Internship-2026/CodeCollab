@@ -1,41 +1,41 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { 
-  ArrowLeft, 
-  Users, 
-  MessageSquare, 
-  Video, 
+import React, { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
+import {
+  ArrowLeft,
+  Users,
+  MessageSquare,
+  Video,
   Code,
   Settings,
   LogOut,
   Copy,
-  ExternalLink
-} from 'lucide-react';
-import { useAuthStore } from '../store/authStore';
-import { useRoomStore } from '../store/roomStore';
-import socketService from '../socket';
-import CodeEditor from '../components/Editor';
-import Chat from '../components/Chat';
-import VideoCall from '../components/VideoCall';
-import VideoSDKCallEnhanced from '../components/VideoSDKCallEnhanced';
-import toast from 'react-hot-toast';
+  ExternalLink,
+} from "lucide-react";
+import { useAuthStore } from "../store/authStore";
+import { useRoomStore } from "../store/roomStore";
+import socketService from "../socket";
+import CodeEditor from "../components/Editor";
+import Chat from "../components/Chat";
+import VideoCall from "../components/VideoCall";
+import VideoSDKCallEnhanced from "../components/VideoSDKCallEnhanced";
+import toast from "react-hot-toast";
 
 const CodeEditorPage = () => {
   const { roomCode } = useParams();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState('editor');
+  const [activeTab, setActiveTab] = useState("editor");
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [useVideoSDK, setUseVideoSDK] = useState(false);
-  
+
   const { user } = useAuthStore();
-  const { 
-    currentRoom, 
-    participants, 
-    joinRoom, 
-    leaveRoom, 
+  const {
+    currentRoom,
+    participants,
+    joinRoom,
+    leaveRoom,
     getRoomParticipants,
-    clearCurrentRoom 
+    clearCurrentRoom,
   } = useRoomStore();
 
   useEffect(() => {
@@ -46,8 +46,8 @@ const CodeEditorPage = () => {
         socketService.joinRoom(roomCode);
         await getRoomParticipants(result.room.id);
       } else {
-        toast.error('Failed to join room');
-        navigate('/dashboard');
+        toast.error("Failed to join room");
+        navigate("/dashboard");
       }
     };
 
@@ -66,12 +66,12 @@ const CodeEditorPage = () => {
     if (currentRoom) {
       await leaveRoom(currentRoom.id);
     }
-    navigate('/dashboard');
+    navigate("/dashboard");
   };
 
   const handleCopyRoomCode = () => {
     navigator.clipboard.writeText(roomCode);
-    toast.success('Room code copied to clipboard!');
+    toast.success("Room code copied to clipboard!");
   };
 
   const handleTabChange = (tab) => {
@@ -97,14 +97,16 @@ const CodeEditorPage = () => {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <button
-                onClick={() => navigate('/dashboard')}
+                onClick={() => navigate("/dashboard")}
                 className="p-2 hover:bg-gray-100 rounded-lg transition-colors duration-200"
               >
                 <ArrowLeft className="w-5 h-5 text-gray-600" />
               </button>
-              
+
               <div>
-                <h1 className="text-xl font-bold text-gray-900">{currentRoom.name}</h1>
+                <h1 className="text-xl font-bold text-gray-900">
+                  {currentRoom.name}
+                </h1>
                 <div className="flex items-center gap-4 text-sm text-gray-600">
                   <span className="flex items-center gap-1">
                     <Code className="w-4 h-4" />
@@ -114,12 +116,14 @@ const CodeEditorPage = () => {
                     <Users className="w-4 h-4" />
                     {participants.length} participants
                   </span>
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                    currentRoom.is_active 
-                      ? 'bg-green-100 text-green-800' 
-                      : 'bg-gray-100 text-gray-800'
-                  }`}>
-                    {currentRoom.is_active ? 'Active' : 'Inactive'}
+                  <span
+                    className={`px-2 py-1 rounded-full text-xs font-medium ${
+                      currentRoom.is_active
+                        ? "bg-green-100 text-green-800"
+                        : "bg-gray-100 text-gray-800"
+                    }`}
+                  >
+                    {currentRoom.is_active ? "Active" : "Inactive"}
                   </span>
                 </div>
               </div>
@@ -133,7 +137,7 @@ const CodeEditorPage = () => {
               >
                 <Copy className="w-5 h-5 text-gray-600" />
               </button>
-              
+
               <button
                 onClick={() => setSidebarOpen(!sidebarOpen)}
                 className="p-2 hover:bg-gray-100 rounded-lg transition-colors duration-200"
@@ -141,7 +145,7 @@ const CodeEditorPage = () => {
               >
                 <Settings className="w-5 h-5 text-gray-600" />
               </button>
-              
+
               <button
                 onClick={handleLeaveRoom}
                 className="p-2 hover:bg-red-100 rounded-lg transition-colors duration-200 text-red-600"
@@ -155,21 +159,21 @@ const CodeEditorPage = () => {
           {/* Tab Navigation */}
           <div className="flex items-center gap-1 mt-3">
             <button
-              onClick={() => handleTabChange('editor')}
+              onClick={() => handleTabChange("editor")}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 ${
-                activeTab === 'editor'
-                  ? 'bg-primary-100 text-primary-700'
-                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                activeTab === "editor"
+                  ? "bg-primary-100 text-primary-700"
+                  : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
               }`}
             >
               Code Editor
             </button>
             <button
-              onClick={() => handleTabChange('chat')}
+              onClick={() => handleTabChange("chat")}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 ${
-                activeTab === 'chat'
-                  ? 'bg-primary-100 text-primary-700'
-                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                activeTab === "chat"
+                  ? "bg-primary-100 text-primary-700"
+                  : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
               }`}
             >
               <div className="flex items-center gap-2">
@@ -178,11 +182,11 @@ const CodeEditorPage = () => {
               </div>
             </button>
             <button
-              onClick={() => handleTabChange('video')}
+              onClick={() => handleTabChange("video")}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 ${
-                activeTab === 'video'
-                  ? 'bg-primary-100 text-primary-700'
-                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                activeTab === "video"
+                  ? "bg-primary-100 text-primary-700"
+                  : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
               }`}
             >
               <div className="flex items-center gap-2">
@@ -198,7 +202,7 @@ const CodeEditorPage = () => {
       <div className="flex-1 flex overflow-hidden">
         {/* Primary Content */}
         <div className="flex-1 flex flex-col">
-          {activeTab === 'editor' && (
+          {activeTab === "editor" && (
             <motion.div
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
@@ -207,8 +211,8 @@ const CodeEditorPage = () => {
               <CodeEditor roomCode={roomCode} />
             </motion.div>
           )}
-          
-          {activeTab === 'chat' && (
+
+          {activeTab === "chat" && (
             <motion.div
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
@@ -217,15 +221,18 @@ const CodeEditorPage = () => {
               <Chat roomCode={roomCode} participants={participants} />
             </motion.div>
           )}
-          
-          {activeTab === 'video' && (
+
+          {activeTab === "video" && (
             <motion.div
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               className="flex-1"
             >
               {useVideoSDK ? (
-                <VideoSDKCallEnhanced roomCode={roomCode} participants={participants} />
+                <VideoSDKCallEnhanced
+                  roomCode={roomCode}
+                  participants={participants}
+                />
               ) : (
                 <VideoCall roomCode={roomCode} participants={participants} />
               )}
@@ -265,18 +272,19 @@ const CodeEditorPage = () => {
                       </p>
                       <p className="text-xs text-gray-500 capitalize">
                         {participant.role}
-                        {participant.is_teacher && ' • Teacher'}
+                        {participant.is_teacher && " • Teacher"}
                       </p>
                     </div>
-                    {user?.role === 'teacher' && participant.role === 'student' && (
-                      <button
-                        onClick={() => handleTabChange('video')}
-                        className="p-1 hover:bg-gray-100 rounded transition-colors duration-200"
-                        title="Start video call"
-                      >
-                        <Video className="w-4 h-4 text-gray-600" />
-                      </button>
-                    )}
+                    {user?.role === "teacher" &&
+                      participant.role === "student" && (
+                        <button
+                          onClick={() => handleTabChange("video")}
+                          className="p-1 hover:bg-gray-100 rounded transition-colors duration-200"
+                          title="Start video call"
+                        >
+                          <Video className="w-4 h-4 text-gray-600" />
+                        </button>
+                      )}
                   </div>
                 ))}
               </div>
@@ -292,20 +300,26 @@ const CodeEditorPage = () => {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Created by:</span>
-                  <span className="font-medium">{currentRoom.creator_name}</span>
+                  <span className="font-medium">
+                    {currentRoom.creator_name}
+                  </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Max participants:</span>
-                  <span className="font-medium">{currentRoom.max_participants}</span>
+                  <span className="font-medium">
+                    {currentRoom.max_participants}
+                  </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Status:</span>
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                    currentRoom.is_active 
-                      ? 'bg-green-100 text-green-800' 
-                      : 'bg-gray-100 text-gray-800'
-                  }`}>
-                    {currentRoom.is_active ? 'Active' : 'Inactive'}
+                  <span
+                    className={`px-2 py-1 rounded-full text-xs font-medium ${
+                      currentRoom.is_active
+                        ? "bg-green-100 text-green-800"
+                        : "bg-gray-100 text-gray-800"
+                    }`}
+                  >
+                    {currentRoom.is_active ? "Active" : "Inactive"}
                   </span>
                 </div>
               </div>
@@ -313,12 +327,16 @@ const CodeEditorPage = () => {
 
             {/* Quick Actions */}
             <div className="p-4 flex-1">
-              <h3 className="font-semibold text-gray-900 mb-3">Quick Actions</h3>
+              <h3 className="font-semibold text-gray-900 mb-3">
+                Quick Actions
+              </h3>
               <div className="space-y-2">
                 <button
                   onClick={() => {
-                    navigator.clipboard.writeText(`${window.location.origin}/join/${roomCode}`);
-                    toast.success('Room link copied to clipboard!');
+                    navigator.clipboard.writeText(
+                      `${window.location.origin}/join/${roomCode}`
+                    );
+                    toast.success("Room link copied to clipboard!");
                   }}
                   className="w-full flex items-center gap-2 p-2 text-left hover:bg-gray-50 rounded-lg transition-colors duration-200"
                 >
@@ -332,7 +350,7 @@ const CodeEditorPage = () => {
                   <Copy className="w-4 h-4 text-gray-600" />
                   <span className="text-sm">Copy room code</span>
                 </button>
-                
+
                 {/* Video SDK Toggle */}
                 <div className="pt-2 border-t border-gray-200">
                   <label className="flex items-center gap-2 p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
@@ -342,7 +360,9 @@ const CodeEditorPage = () => {
                       onChange={(e) => setUseVideoSDK(e.target.checked)}
                       className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
                     />
-                    <span className="text-sm font-medium">Use VideoSDK (Professional)</span>
+                    <span className="text-sm font-medium">
+                      Use VideoSDK (Professional)
+                    </span>
                   </label>
                 </div>
               </div>
