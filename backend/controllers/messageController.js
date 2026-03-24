@@ -2,7 +2,6 @@ const Message = require("../models/Message");
 const { v4: uuidv4 } = require("uuid");
 const { asyncHandler } = require("../middleware/globalErrorHandler");
 
-// ✅ Create new message
 const createMessage = asyncHandler(async (req, res) => {
   const { room_id, message } = req.body;
   console.log("Room Id", room_id, "Message", message);
@@ -22,11 +21,7 @@ const createMessage = asyncHandler(async (req, res) => {
     message_type: "text",
     created_at: new Date(),
   };
-
-  // 1. Save to DB
   const newMessage = await Message.create(messageData);
-
-  // 2. Emit to room via socket
   const io = req.app.get("io");
 
   io.to(room_id).emit("chat-message", {
@@ -39,7 +34,6 @@ const createMessage = asyncHandler(async (req, res) => {
     },
   });
 
-  // 3. Send response
   res.status(201).json({
     success: true,
     message: "Message created successfully",
@@ -55,7 +49,6 @@ const createMessage = asyncHandler(async (req, res) => {
   });
 });
 
-// ✅ Get all messages for a room
 const getAllMessages = asyncHandler(async (req, res) => {
   const { roomId } = req.params;
 

@@ -5,18 +5,30 @@ import {
   useMeeting,
   useParticipant,
 } from "@videosdk.live/react-sdk";
-import { authToken, createMeeting, isAuthTokenConfigured } from "../services/videoSDKAPI";
+import {
+  authToken,
+  createMeeting,
+  isAuthTokenConfigured,
+} from "../services/videoSDKAPI";
 import { useAuthStore } from "../store/authStore";
-import videoCallBridge, { setupVideoCallBridge } from "../services/videoCallBridge";
+import videoCallBridge, {
+  setupVideoCallBridge,
+} from "../services/videoCallBridge";
 import toast from "react-hot-toast";
-import { Phone, PhoneOff, Mic, MicOff, Video, VideoOff, Users } from "lucide-react";
+import {
+  Phone,
+  PhoneOff,
+  Mic,
+  MicOff,
+  Video,
+  VideoOff,
+  Users,
+} from "lucide-react";
 
-// Join Screen Component
 function JoinScreen({ getMeetingAndToken }) {
   const [meetingId, setMeetingId] = useState("");
   const [joining, setJoining] = useState(false);
 
-  // Check if auth token is configured
   if (!isAuthTokenConfigured()) {
     return (
       <div className="flex flex-col items-center justify-center h-full bg-gray-900 text-white p-8">
@@ -24,16 +36,33 @@ function JoinScreen({ getMeetingAndToken }) {
           <div className="w-16 h-16 bg-yellow-600 rounded-full flex items-center justify-center mx-auto mb-4">
             <Phone className="w-8 h-8 text-white" />
           </div>
-          <h2 className="text-2xl font-bold mb-2 text-yellow-400">VideoSDK Not Configured</h2>
+          <h2 className="text-2xl font-bold mb-2 text-yellow-400">
+            VideoSDK Not Configured
+          </h2>
           <p className="text-gray-400 mb-6">
-            Please configure your VideoSDK auth token in <code className="bg-gray-800 px-2 py-1 rounded">src/services/videoSDKAPI.js</code>
+            Please configure your VideoSDK auth token in{" "}
+            <code className="bg-gray-800 px-2 py-1 rounded">
+              src/services/videoSDKAPI.js
+            </code>
           </p>
           <div className="bg-gray-800 p-4 rounded-lg text-sm">
             <p className="text-gray-300 mb-2">Steps to configure:</p>
             <ol className="text-left text-gray-400 space-y-1">
-              <li>1. Sign up at <a href="https://dashboard.videosdk.live/" target="_blank" className="text-blue-400 hover:underline">VideoSDK.live</a></li>
+              <li>
+                1. Sign up at{" "}
+                <a
+                  href="https://dashboard.videosdk.live/"
+                  target="_blank"
+                  className="text-blue-400 hover:underline"
+                >
+                  VideoSDK.live
+                </a>
+              </li>
               <li>2. Get your auth token from dashboard</li>
-              <li>3. Replace "YOUR_VIDEOSDK_AUTH_TOKEN_HERE" with your actual token</li>
+              <li>
+                3. Replace "YOUR_VIDEOSDK_AUTH_TOKEN_HERE" with your actual
+                token
+              </li>
             </ol>
           </div>
         </div>
@@ -58,9 +87,11 @@ function JoinScreen({ getMeetingAndToken }) {
       <div className="max-w-md w-full space-y-6">
         <div className="text-center">
           <h2 className="text-2xl font-bold mb-2">Video Meeting</h2>
-          <p className="text-gray-400">Join an existing meeting or create a new one</p>
+          <p className="text-gray-400">
+            Join an existing meeting or create a new one
+          </p>
         </div>
-        
+
         <div className="space-y-4">
           <input
             type="text"
@@ -69,7 +100,7 @@ function JoinScreen({ getMeetingAndToken }) {
             onChange={(e) => setMeetingId(e.target.value)}
             className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
-          
+
           <div className="space-y-3">
             <button
               onClick={onClick}
@@ -78,9 +109,9 @@ function JoinScreen({ getMeetingAndToken }) {
             >
               {joining ? "Joining..." : "Join Meeting"}
             </button>
-            
+
             <div className="text-center text-gray-500">or</div>
-            
+
             <button
               onClick={() => getMeetingAndToken(null)}
               disabled={joining}
@@ -95,10 +126,10 @@ function JoinScreen({ getMeetingAndToken }) {
   );
 }
 
-// Participant View Component
 function ParticipantView({ participantId }) {
   const micRef = useRef(null);
-  const { micStream, webcamOn, micOn, isLocal, displayName } = useParticipant(participantId);
+  const { micStream, webcamOn, micOn, isLocal, displayName } =
+    useParticipant(participantId);
 
   useEffect(() => {
     if (micRef.current) {
@@ -109,7 +140,9 @@ function ParticipantView({ participantId }) {
         micRef.current.srcObject = mediaStream;
         micRef.current
           .play()
-          .catch((error) => console.error("micRef.current.play() failed", error));
+          .catch((error) =>
+            console.error("micRef.current.play() failed", error)
+          );
       } else {
         micRef.current.srcObject = null;
       }
@@ -134,22 +167,24 @@ function ParticipantView({ participantId }) {
               <div className="w-16 h-16 bg-gray-600 rounded-full flex items-center justify-center mx-auto mb-2">
                 <Users className="w-8 h-8 text-gray-400" />
               </div>
-              <p className="text-gray-400 text-sm">{displayName || 'Participant'}</p>
+              <p className="text-gray-400 text-sm">
+                {displayName || "Participant"}
+              </p>
             </div>
           </div>
         )}
       </div>
-      
-      {/* Audio element for microphone */}
+
       <audio ref={micRef} autoPlay playsInline muted={isLocal} />
-      
-      {/* Participant info overlay */}
+
       <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between">
         <div className="flex items-center gap-2 bg-black bg-opacity-50 px-2 py-1 rounded">
-          <span className="text-white text-sm">{displayName || 'Anonymous'}</span>
+          <span className="text-white text-sm">
+            {displayName || "Anonymous"}
+          </span>
           {isLocal && <span className="text-xs text-gray-300">(You)</span>}
         </div>
-        
+
         <div className="flex items-center gap-1">
           {!webcamOn && (
             <div className="bg-red-600 p-1 rounded">
@@ -167,7 +202,6 @@ function ParticipantView({ participantId }) {
   );
 }
 
-// Controls Component
 function Controls() {
   const { leave, toggleMic, toggleWebcam, micOn, webcamOn } = useMeeting();
 
@@ -182,7 +216,11 @@ function Controls() {
         }`}
         title={webcamOn ? "Turn off camera" : "Turn on camera"}
       >
-        {webcamOn ? <Video className="w-6 h-6" /> : <VideoOff className="w-6 h-6" />}
+        {webcamOn ? (
+          <Video className="w-6 h-6" />
+        ) : (
+          <VideoOff className="w-6 h-6" />
+        )}
       </button>
 
       <button
@@ -208,24 +246,18 @@ function Controls() {
   );
 }
 
-// Meeting View Component
 function MeetingView({ meetingId, onMeetingLeave }) {
   const [joined, setJoined] = useState(null);
-  
-  // Get method which will be used to join the meeting
-  // We will also get the participants list to display all participants
+
   const { join, participants } = useMeeting({
-    // Callback for when meeting is joined successfully
     onMeetingJoined: () => {
       setJoined("JOINED");
       toast.success("Joined meeting successfully!");
     },
-    // Callback for when meeting is left
     onMeetingLeft: () => {
       setJoined("LEFT");
       onMeetingLeave();
     },
-    // Callback for meeting errors
     onError: (error) => {
       console.error("Meeting error:", error);
       toast.error("Meeting error occurred");
@@ -240,24 +272,24 @@ function MeetingView({ meetingId, onMeetingLeave }) {
 
   return (
     <div className="flex flex-col h-full bg-gray-900">
-      {/* Meeting Header */}
       <div className="bg-gray-800 px-4 py-3 border-b border-gray-700">
         <div className="flex items-center justify-between">
           <h3 className="text-white font-medium">Meeting ID: {meetingId}</h3>
           <div className="flex items-center gap-2">
             <span className="text-sm text-gray-400">
-              {joined === "JOINED" && `${participants.size} participant${participants.size > 1 ? 's' : ''}`}
+              {joined === "JOINED" &&
+                `${participants.size} participant${
+                  participants.size > 1 ? "s" : ""
+                }`}
             </span>
           </div>
         </div>
       </div>
 
-      {/* Main Content */}
       <div className="flex-1 flex flex-col">
         {joined && joined === "JOINED" ? (
           <div className="flex-1 p-4">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 h-full">
-              {/* Render all participants */}
               {[...participants.keys()].map((participantId) => (
                 <ParticipantView
                   participantId={participantId}
@@ -265,8 +297,7 @@ function MeetingView({ meetingId, onMeetingLeave }) {
                 />
               ))}
             </div>
-            
-            {/* Controls */}
+
             <Controls />
           </div>
         ) : joined && joined === "JOINING" ? (
@@ -306,15 +337,14 @@ function MeetingView({ meetingId, onMeetingLeave }) {
   );
 }
 
-// Main VideoSDK Call Component
 function VideoSDKCall({ roomCode, participants }) {
   const [meetingId, setMeetingId] = useState(null);
   const { user } = useAuthStore();
 
-  // Getting meeting id by calling API we just wrote
   const getMeetingAndToken = async (id) => {
     try {
-      const newMeetingId = id == null ? await createMeeting({ token: authToken }) : id;
+      const newMeetingId =
+        id == null ? await createMeeting({ token: authToken }) : id;
       setMeetingId(newMeetingId);
     } catch (error) {
       console.error("Failed to get meeting:", error);
@@ -322,16 +352,13 @@ function VideoSDKCall({ roomCode, participants }) {
     }
   };
 
-  // This will set Meeting Id to null when meeting is left or ended
   const onMeetingLeave = () => {
     setMeetingId(null);
     toast.info("You left the meeting");
   };
 
-  // Use roomCode as meetingId if provided, otherwise use VideoSDK meeting
   const effectiveMeetingId = meetingId || roomCode;
 
-  // Check if VideoSDK is properly configured
   if (!isAuthTokenConfigured()) {
     return (
       <div className="h-full flex items-center justify-center bg-gray-900">
@@ -344,9 +371,19 @@ function VideoSDKCall({ roomCode, participants }) {
             Configure VideoSDK to enable professional video calling
           </p>
           <div className="bg-gray-800 p-4 rounded-lg text-sm text-left">
-            <p className="text-yellow-400 font-medium mb-2">Configuration Required:</p>
-            <p>Edit <code className="bg-gray-700 px-2 py-1 rounded">src/services/videoSDKAPI.js</code></p>
-            <p className="text-gray-300 mt-2">Replace "YOUR_VIDEOSDK_AUTH_TOKEN_HERE" with your VideoSDK auth token</p>
+            <p className="text-yellow-400 font-medium mb-2">
+              Configuration Required:
+            </p>
+            <p>
+              Edit{" "}
+              <code className="bg-gray-700 px-2 py-1 rounded">
+                src/services/videoSDKAPI.js
+              </code>
+            </p>
+            <p className="text-gray-300 mt-2">
+              Replace "YOUR_VIDEOSDK_AUTH_TOKEN_HERE" with your VideoSDK auth
+              token
+            </p>
           </div>
         </div>
       </div>
@@ -365,7 +402,10 @@ function VideoSDKCall({ roomCode, participants }) {
           }}
           token={authToken}
         >
-          <MeetingView meetingId={effectiveMeetingId} onMeetingLeave={onMeetingLeave} />
+          <MeetingView
+            meetingId={effectiveMeetingId}
+            onMeetingLeave={onMeetingLeave}
+          />
         </MeetingProvider>
       ) : (
         <JoinScreen getMeetingAndToken={getMeetingAndToken} />

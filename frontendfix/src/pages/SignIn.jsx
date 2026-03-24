@@ -1,67 +1,66 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { Eye, EyeOff, Mail, Lock, AlertCircle } from 'lucide-react';
-import { useAuthStore } from '../store/authStore';
-import toast from 'react-hot-toast';
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
+import { Eye, EyeOff, Mail, Lock, AlertCircle } from "lucide-react";
+import { useAuthStore } from "../store/authStore";
+import toast from "react-hot-toast";
 
 const SignIn = () => {
   const [formData, setFormData] = useState({
-    email: '',
-    password: ''
+    email: "",
+    password: "",
   });
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState({});
-  
+
   const navigate = useNavigate();
   const { login, isLoading } = useAuthStore();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
-    
-    // Clear error when user starts typing
+
     if (errors[name]) {
-      setErrors(prev => ({
+      setErrors((prev) => ({
         ...prev,
-        [name]: ''
+        [name]: "",
       }));
     }
   };
 
   const validateForm = () => {
     const newErrors = {};
-    
+
     if (!formData.email) {
-      newErrors.email = 'Email is required';
+      newErrors.email = "Email is required";
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = 'Email is invalid';
+      newErrors.email = "Email is invalid";
     }
-    
+
     if (!formData.password) {
-      newErrors.password = 'Password is required';
+      newErrors.password = "Password is required";
     } else if (formData.password.length < 6) {
-      newErrors.password = 'Password must be at least 6 characters';
+      newErrors.password = "Password must be at least 6 characters";
     }
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
 
     const result = await login(formData);
-    
+
     if (result.success) {
-      navigate('/dashboard');
+      navigate("/dashboard");
     }
   };
 
@@ -71,9 +70,9 @@ const SignIn = () => {
       opacity: 1,
       transition: {
         duration: 0.6,
-        staggerChildren: 0.1
-      }
-    }
+        staggerChildren: 0.1,
+      },
+    },
   };
 
   const itemVariants = {
@@ -82,10 +81,10 @@ const SignIn = () => {
       y: 0,
       opacity: 1,
       transition: {
-        type: 'spring',
-        stiffness: 100
-      }
-    }
+        type: "spring",
+        stiffness: 100,
+      },
+    },
   };
 
   return (
@@ -120,7 +119,10 @@ const SignIn = () => {
               <form onSubmit={handleSubmit} className="space-y-6">
                 {/* Email Field */}
                 <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                  <label
+                    htmlFor="email"
+                    className="block text-sm font-medium text-gray-700 mb-2"
+                  >
                     Email Address
                   </label>
                   <div className="relative">
@@ -133,7 +135,9 @@ const SignIn = () => {
                       name="email"
                       value={formData.email}
                       onChange={handleChange}
-                      className={`input-field pl-10 ${errors.email ? 'border-red-500 focus:ring-red-500' : ''}`}
+                      className={`input-field pl-10 ${
+                        errors.email ? "border-red-500 focus:ring-red-500" : ""
+                      }`}
                       placeholder="Enter your email"
                       disabled={isLoading}
                     />
@@ -152,7 +156,10 @@ const SignIn = () => {
 
                 {/* Password Field */}
                 <div>
-                  <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+                  <label
+                    htmlFor="password"
+                    className="block text-sm font-medium text-gray-700 mb-2"
+                  >
                     Password
                   </label>
                   <div className="relative">
@@ -160,12 +167,16 @@ const SignIn = () => {
                       <Lock className="h-5 w-5 text-gray-400" />
                     </div>
                     <input
-                      type={showPassword ? 'text' : 'password'}
+                      type={showPassword ? "text" : "password"}
                       id="password"
                       name="password"
                       value={formData.password}
                       onChange={handleChange}
-                      className={`input-field pl-10 pr-10 ${errors.password ? 'border-red-500 focus:ring-red-500' : ''}`}
+                      className={`input-field pl-10 pr-10 ${
+                        errors.password
+                          ? "border-red-500 focus:ring-red-500"
+                          : ""
+                      }`}
                       placeholder="Enter your password"
                       disabled={isLoading}
                     />
@@ -202,7 +213,10 @@ const SignIn = () => {
                       type="checkbox"
                       className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                     />
-                    <label htmlFor="remember" className="ml-2 block text-sm text-gray-700">
+                    <label
+                      htmlFor="remember"
+                      className="ml-2 block text-sm text-gray-700"
+                    >
                       Remember me
                     </label>
                   </div>
@@ -231,7 +245,7 @@ const SignIn = () => {
                       </div>
                     </div>
                   ) : (
-                    'Sign In'
+                    "Sign In"
                   )}
                 </motion.button>
               </form>
@@ -249,7 +263,7 @@ const SignIn = () => {
               {/* Sign Up Link */}
               <div className="text-center">
                 <p className="text-gray-600">
-                  Don't have an account?{' '}
+                  Don't have an account?{" "}
                   <Link
                     to="/signup"
                     className="text-blue-600 hover:text-blue-500 font-medium"
@@ -262,10 +276,7 @@ const SignIn = () => {
           </motion.div>
 
           {/* Demo Account Info */}
-          <motion.div
-            variants={itemVariants}
-            className="mt-6 text-center"
-          >
+          <motion.div variants={itemVariants} className="mt-6 text-center">
             <p className="text-sm text-gray-500">
               Demo Account: demo@codecollab.com / password123
             </p>

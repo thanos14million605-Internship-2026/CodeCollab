@@ -1,20 +1,20 @@
-import React, { useState, useEffect } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  Menu, 
-  X, 
-  Home, 
-  Users, 
-  Calendar, 
-  Settings, 
+import React, { useState, useEffect } from "react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  Menu,
+  X,
+  Home,
+  Users,
+  Calendar,
+  Settings,
   LogOut,
   User,
   BookOpen,
-  Code
-} from 'lucide-react';
-import { useAuthStore } from '../store/authStore';
-import socketService from '../socket';
+  Code,
+} from "lucide-react";
+import { useAuthStore } from "../store/authStore";
+import socketService from "../socket";
 
 const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -24,7 +24,6 @@ const Navbar = () => {
   const { user, isAuthenticated, logout } = useAuthStore();
 
   useEffect(() => {
-    // Close mobile menu when route changes
     setIsMobileMenuOpen(false);
     setIsProfileMenuOpen(false);
   }, [location]);
@@ -32,18 +31,17 @@ const Navbar = () => {
   const handleLogout = () => {
     logout();
     socketService.disconnect();
-    navigate('/');
+    navigate("/");
     setIsProfileMenuOpen(false);
   };
 
   const navItems = [
-    { name: 'Home', href: '/', icon: Home },
-    { name: 'Dashboard', href: '/dashboard', icon: Users, requiresAuth: true },
-    { name: 'Schedule', href: '/schedule', icon: Calendar, requiresAuth: true, teacherOnly: true },
+    { name: "Home", href: "/", icon: Home },
+    { name: "Dashboard", href: "/dashboard", icon: Users, requiresAuth: true },
   ];
 
   const isActiveRoute = (href) => {
-    if (href === '/') return location.pathname === '/';
+    if (href === "/") return location.pathname === "/";
     return location.pathname.startsWith(href);
   };
 
@@ -51,7 +49,6 @@ const Navbar = () => {
     <nav className="bg-white shadow-lg border-b border-secondary-200 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
-          {/* Logo and main nav */}
           <div className="flex items-center">
             <Link to="/" className="flex items-center space-x-2">
               <motion.div
@@ -68,23 +65,22 @@ const Navbar = () => {
               </motion.div>
             </Link>
 
-            {/* Desktop navigation */}
             <div className="hidden md:flex items-center space-x-1 ml-10">
               {navItems.map((item) => {
                 if (item.requiresAuth && !isAuthenticated) return null;
-                if (item.teacherOnly && user?.role !== 'teacher') return null;
-                
+                if (item.teacherOnly && user?.role !== "teacher") return null;
+
                 const Icon = item.icon;
                 const isActive = isActiveRoute(item.href);
-                
+
                 return (
                   <Link
                     key={item.name}
                     to={item.href}
                     className={`relative px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
                       isActive
-                        ? 'text-primary-600 bg-primary-50'
-                        : 'text-secondary-600 hover:text-primary-600 hover:bg-secondary-50'
+                        ? "text-primary-600 bg-primary-50"
+                        : "text-secondary-600 hover:text-primary-600 hover:bg-secondary-50"
                     }`}
                   >
                     <div className="flex items-center space-x-2">
@@ -96,7 +92,11 @@ const Navbar = () => {
                         layoutId="activeTab"
                         className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary-600"
                         initial={false}
-                        transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                        transition={{
+                          type: "spring",
+                          stiffness: 500,
+                          damping: 30,
+                        }}
                       />
                     )}
                   </Link>
@@ -105,7 +105,6 @@ const Navbar = () => {
             </div>
           </div>
 
-          {/* Right side buttons */}
           <div className="flex items-center space-x-4">
             {isAuthenticated ? (
               <div className="relative">
@@ -135,9 +134,15 @@ const Navbar = () => {
                       className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl border border-secondary-200 py-1"
                     >
                       <div className="px-4 py-2 border-b border-secondary-100">
-                        <p className="text-sm font-medium text-secondary-900">{user?.name}</p>
-                        <p className="text-xs text-secondary-500">{user?.email}</p>
-                        <p className="text-xs text-primary-600 font-medium capitalize">{user?.role}</p>
+                        <p className="text-sm font-medium text-secondary-900">
+                          {user?.name}
+                        </p>
+                        <p className="text-xs text-secondary-500">
+                          {user?.email}
+                        </p>
+                        <p className="text-xs text-primary-600 font-medium capitalize">
+                          {user?.role}
+                        </p>
                       </div>
                       <Link
                         to="/profile"
@@ -174,16 +179,12 @@ const Navbar = () => {
                 >
                   Sign In
                 </Link>
-                <Link
-                  to="/signup"
-                  className="btn-primary text-sm"
-                >
+                <Link to="/signup" className="btn-primary text-sm">
                   Sign Up
                 </Link>
               </div>
             )}
 
-            {/* Mobile menu button */}
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               className="md:hidden p-2 rounded-md text-secondary-600 hover:text-primary-600 hover:bg-secondary-50 transition-colors duration-200"
@@ -198,12 +199,11 @@ const Navbar = () => {
         </div>
       </div>
 
-      {/* Mobile menu */}
       <AnimatePresence>
         {isMobileMenuOpen && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
+            animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.3 }}
             className="md:hidden border-t border-secondary-200 bg-white"
@@ -211,19 +211,19 @@ const Navbar = () => {
             <div className="px-2 pt-2 pb-3 space-y-1">
               {navItems.map((item) => {
                 if (item.requiresAuth && !isAuthenticated) return null;
-                if (item.teacherOnly && user?.role !== 'teacher') return null;
-                
+                if (item.teacherOnly && user?.role !== "teacher") return null;
+
                 const Icon = item.icon;
                 const isActive = isActiveRoute(item.href);
-                
+
                 return (
                   <Link
                     key={item.name}
                     to={item.href}
                     className={`flex items-center space-x-3 px-3 py-2 rounded-md text-base font-medium transition-all duration-200 ${
                       isActive
-                        ? 'text-primary-600 bg-primary-50'
-                        : 'text-secondary-600 hover:text-primary-600 hover:bg-secondary-50'
+                        ? "text-primary-600 bg-primary-50"
+                        : "text-secondary-600 hover:text-primary-600 hover:bg-secondary-50"
                     }`}
                   >
                     <Icon className="w-5 h-5" />
@@ -231,7 +231,7 @@ const Navbar = () => {
                   </Link>
                 );
               })}
-              
+
               {!isAuthenticated && (
                 <>
                   <Link

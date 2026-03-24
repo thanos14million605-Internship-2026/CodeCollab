@@ -1,11 +1,10 @@
 /** @type {import('tailwindcss').Config} */
 export default {
   content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
-  darkMode: "class", // enables dark mode via class
+  darkMode: "class",
   theme: {
     extend: {
       colors: {
-        // 🔹 Design tokens (NOW WORKS in v3)
         border: "hsl(var(--border))",
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",

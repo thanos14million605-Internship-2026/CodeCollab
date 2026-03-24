@@ -1,42 +1,35 @@
-// API Constants
 const isProduction = true;
 
 export const API_BASE_URL = isProduction
   ? "https://codecollab-t5uj.onrender.com/api"
   : "http://localhost:5000/api";
 
-// Socket.IO Constants
 export const SOCKET_URL = isProduction
   ? "https://codecollab-t5uj.onrender.com/"
   : "http://localhost:5000";
 
-// Local Storage Keys
 export const STORAGE_KEYS = {
   TOKEN: "codecollab_token",
   USER: "codecollab_user",
   THEME: "codecollab_theme",
 };
 
-// User Roles
 export const USER_ROLES = {
   TEACHER: "teacher",
   STUDENT: "student",
 };
 
-// Room Status
 export const ROOM_STATUS = {
   ACTIVE: true,
   INACTIVE: false,
 };
 
-// Message Types
 export const MESSAGE_TYPES = {
   TEXT: "text",
   SYSTEM: "system",
   REACTION: "reaction",
 };
 
-// Supported Languages
 export const SUPPORTED_LANGUAGES = [
   { id: "javascript", name: "JavaScript", monaco: "javascript" },
   { id: "python", name: "Python", monaco: "python" },
@@ -46,7 +39,6 @@ export const SUPPORTED_LANGUAGES = [
   { id: "css", name: "CSS", monaco: "css" },
 ];
 
-// Default Code Templates
 export const CODE_TEMPLATES = {
   javascript: `// Welcome to CodeCollab JavaScript Editor
 function hello(name) {
@@ -115,7 +107,6 @@ export const REACTIONS = [
   { emoji: "👏", name: "clap" },
 ];
 
-// Toast Messages
 export const TOAST_MESSAGES = {
   LOGIN_SUCCESS: "Logged in successfully!",
   LOGIN_ERROR: "Invalid email or password",
@@ -128,7 +119,6 @@ export const TOAST_MESSAGES = {
   GENERIC_ERROR: "Something went wrong. Please try again.",
 };
 
-// Animation Durations (in ms)
 export const ANIMATION_DURATIONS = {
   FAST: 200,
   NORMAL: 300,

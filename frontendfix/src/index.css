@@ -2,21 +2,18 @@
 @tailwind components;
 @tailwind utilities;
 
-/* 🔹 CSS Variables (Design System) */
 :root {
   --border: 220 13% 91%;
   --background: 0 0% 100%;
   --foreground: 222 47% 11%;
 }
 
-/* 🌙 Dark mode */
 .dark {
   --border: 217 19% 27%;
   --background: 222 47% 11%;
   --foreground: 210 40% 98%;
 }
 
-/* 🔹 Base styles */
 @layer base {
   * {
     @apply border-border;
@@ -28,7 +25,6 @@
   }
 }
 
-/* 🔹 Components */
 @layer components {
   .btn-primary {
     @apply bg-primary-600 hover:bg-primary-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2;
@@ -66,7 +62,6 @@
   }
 }
 
-/* 🔹 Utilities */
 @layer utilities {
   .text-balance {
     text-wrap: balance;
@@ -86,7 +81,6 @@
   }
 }
 
-/* 🔹 GLOBAL SCROLLBAR (light subtle) */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -105,13 +99,11 @@
   background-color: rgba(100, 116, 139, 0.8);
 }
 
-/* 🔥 SCROLLBAR (FINAL FIX) */
 .chat-messages {
   scrollbar-width: thin; /* Firefox */
   scrollbar-color: #94a3b8 transparent;
 }
 
-/* Chrome / Edge / Safari */
 .chat-messages::-webkit-scrollbar {
   width: 8px;
 }
@@ -129,13 +121,11 @@
   background-color: #64748b;
 }
 
-/* Chat Scrollbar ONLY */
 .chat-scroll {
   scrollbar-width: thin;
   scrollbar-color: #94a3b8 transparent;
 }
 
-/* Chrome, Edge, Safari */
 .chat-scroll::-webkit-scrollbar {
   width: 8px;
 }
@@ -153,7 +143,6 @@
   background-color: #64748b;
 }
 
-/* 🔹 Monaco Editor */
 .monaco-editor {
   @apply rounded-lg overflow-hidden;
 }
@@ -162,7 +151,6 @@
   @apply bg-secondary-50 dark:bg-secondary-800;
 }
 
-/* 🔹 Loading animation */
 .loading-dots span {
   @apply inline-block w-2 h-2 bg-primary-600 rounded-full mx-0.5;
   animation: loading-dots 1.4s infinite ease-in-out both;
@@ -189,7 +177,6 @@
   }
 }
 
-/* 🔹 Video UI */
 .video-container {
   @apply relative bg-black rounded-lg overflow-hidden aspect-video;
 }
@@ -202,7 +189,6 @@
   @apply absolute inset-0 bg-gradient-to-t from-black/50 to-transparent pointer-events-none;
 }
 
-/* 🔹 Chat UI */
 .chat-container {
   @apply flex flex-col h-full bg-white dark:bg-secondary-800 rounded-lg border border-secondary-200 dark:border-secondary-700;
 }
@@ -215,7 +201,6 @@
   @apply border-t border-secondary-200 dark:border-secondary-700 p-4;
 }
 
-/* 🔹 Editor UI */
 .editor-container {
   @apply h-full flex flex-col bg-white dark:bg-secondary-800 rounded-lg border border-secondary-200 dark:border-secondary-700 overflow-hidden;
 }

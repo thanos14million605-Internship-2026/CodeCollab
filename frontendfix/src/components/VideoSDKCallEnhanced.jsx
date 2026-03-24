@@ -27,7 +27,6 @@ import {
   Check,
 } from "lucide-react";
 
-// Incoming Call Modal
 function IncomingCallModal({ call, onAccept, onReject }) {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -62,13 +61,11 @@ function IncomingCallModal({ call, onAccept, onReject }) {
   );
 }
 
-// Join Screen Component
 function JoinScreen({ getMeetingAndToken, participants, onInitiateCall }) {
   const [meetingId, setMeetingId] = useState("");
   const [joining, setJoining] = useState(false);
   const { user } = useAuthStore();
 
-  // Check if auth token is configured
   if (!isAuthTokenConfigured()) {
     return (
       <div className="flex flex-col items-center justify-center h-full bg-gray-900 text-white p-8">
@@ -124,13 +121,11 @@ function JoinScreen({ getMeetingAndToken, participants, onInitiateCall }) {
 
   return (
     <div className="flex flex-col h-full bg-gray-900 text-white">
-      {/* Header */}
       <div className="bg-gray-800 px-4 py-3 border-b border-gray-700">
         <h3 className="text-lg font-semibold">Video Meeting</h3>
       </div>
 
       <div className="flex-1 flex flex-col">
-        {/* Main Join/Create Section */}
         <div className="flex-1 flex items-center justify-center p-8">
           <div className="max-w-md w-full space-y-6">
             <div className="text-center">
@@ -172,7 +167,6 @@ function JoinScreen({ getMeetingAndToken, participants, onInitiateCall }) {
           </div>
         </div>
 
-        {/* Participants List for Calling */}
         {participants && participants.length > 0 && (
           <div className="bg-gray-800 border-t border-gray-700 p-4">
             <h4 className="font-medium mb-3">Call Participants</h4>
@@ -211,24 +205,18 @@ function JoinScreen({ getMeetingAndToken, participants, onInitiateCall }) {
   );
 }
 
-// Meeting View Component
 function MeetingView({ meetingId, onMeetingLeave }) {
   const [joined, setJoined] = useState(null);
 
-  // Get method which will be used to join the meeting
-  // We will also get the participants list to display all participants
   const { join, participants } = useMeeting({
-    // Callback for when meeting is joined successfully
     onMeetingJoined: () => {
       setJoined("JOINED");
       toast.success("Joined meeting successfully!");
     },
-    // Callback for when meeting is left
     onMeetingLeft: () => {
       setJoined("LEFT");
       onMeetingLeave();
     },
-    // Callback for meeting errors
     onError: (error) => {
       console.error("Meeting error:", error);
       toast.error("Meeting error occurred");
@@ -243,7 +231,6 @@ function MeetingView({ meetingId, onMeetingLeave }) {
 
   return (
     <div className="flex flex-col h-full bg-gray-900">
-      {/* Meeting Header */}
       <div className="bg-gray-800 px-4 py-3 border-b border-gray-700">
         <div className="flex items-center justify-between">
           <h3 className="text-white font-medium">Meeting ID: {meetingId}</h3>
@@ -258,12 +245,10 @@ function MeetingView({ meetingId, onMeetingLeave }) {
         </div>
       </div>
 
-      {/* Main Content */}
       <div className="flex-1 flex flex-col">
         {joined && joined === "JOINED" ? (
           <div className="flex-1 p-4">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 h-full">
-              {/* Render all participants */}
               {[...participants.keys()].map((participantId) => (
                 <ParticipantView
                   participantId={participantId}
@@ -272,7 +257,6 @@ function MeetingView({ meetingId, onMeetingLeave }) {
               ))}
             </div>
 
-            {/* Controls */}
             <Controls />
           </div>
         ) : joined && joined === "JOINING" ? (
@@ -312,7 +296,6 @@ function MeetingView({ meetingId, onMeetingLeave }) {
   );
 }
 
-// Participant View Component (same as before)
 function ParticipantView({ participantId }) {
   const micRef = useRef(null);
   const { micStream, webcamOn, micOn, isLocal, displayName } =
@@ -389,7 +372,6 @@ function ParticipantView({ participantId }) {
   );
 }
 
-// Controls Component (same as before)
 function Controls() {
   const { leave, toggleMic, toggleWebcam, micOn, webcamOn } = useMeeting();
 
@@ -434,17 +416,14 @@ function Controls() {
   );
 }
 
-// Main Enhanced VideoSDK Call Component
 function VideoSDKCallEnhanced({ roomCode, participants }) {
   const [meetingId, setMeetingId] = useState(null);
   const [incomingCall, setIncomingCall] = useState(null);
   const { user } = useAuthStore();
 
-  // Setup video call bridge
   useEffect(() => {
     setupVideoCallBridge();
 
-    // Setup bridge callbacks
     videoCallBridge.on("onIncomingCall", (call) => {
       setIncomingCall(call);
     });
@@ -463,7 +442,6 @@ function VideoSDKCallEnhanced({ roomCode, participants }) {
     };
   }, []);
 
-  // Getting meeting id by calling API we just wrote
   const getMeetingAndToken = async (id) => {
     try {
       const newMeetingId =
@@ -475,44 +453,31 @@ function VideoSDKCallEnhanced({ roomCode, participants }) {
     }
   };
 
-  // Initiate call to participant
   const handleInitiateCall = async (caller, receiver) => {
     try {
       await videoCallBridge.initiateCall(caller, receiver);
       console.log("📤 Sent call to:", receiver.user_id);
-      // ❌ REMOVE THIS LINE (causes instant join)
-      // setMeetingId(videoCallBridge.getActiveCalls().get(receiver.user_id));
     } catch (error) {
       console.error("Failed to initiate call:", error);
     }
   };
 
-  // Accept incoming call
   const handleAcceptCall = (fromUserId, meetingId) => {
     videoCallBridge.acceptCall(fromUserId, meetingId);
-    // ❌ REMOVE THIS LINE
-    // setMeetingId(meetingId);
-
-    // ❌ REMOVE THIS TOO (handled by callback)
-    // setIncomingCall(null);
   };
 
-  // Reject incoming call
   const handleRejectCall = (fromUserId) => {
     videoCallBridge.rejectCall(fromUserId);
     setIncomingCall(null);
   };
 
-  // This will set Meeting Id to null when meeting is left or ended
   const onMeetingLeave = () => {
     setMeetingId(null);
     toast.info("You left the meeting");
   };
 
-  // Use roomCode as meetingId if provided, otherwise use VideoSDK meeting
   const effectiveMeetingId = meetingId || roomCode;
 
-  // Check if VideoSDK is properly configured
   if (!isAuthTokenConfigured()) {
     return (
       <div className="h-full flex items-center justify-center bg-gray-900">
@@ -546,7 +511,6 @@ function VideoSDKCallEnhanced({ roomCode, participants }) {
 
   return (
     <div className="h-full relative">
-      {/* Incoming Call Modal */}
       {incomingCall && (
         <IncomingCallModal
           call={incomingCall}
@@ -555,7 +519,6 @@ function VideoSDKCallEnhanced({ roomCode, participants }) {
         />
       )}
 
-      {/* Main VideoSDK Content */}
       {authToken && effectiveMeetingId ? (
         <MeetingProvider
           config={{

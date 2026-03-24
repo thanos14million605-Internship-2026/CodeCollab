@@ -1,12 +1,11 @@
-const nodemailer = require('nodemailer');
-require('dotenv').config();
+const nodemailer = require("nodemailer");
+require("dotenv").config();
 
-// Create email transporter
 const createTransporter = () => {
-  return nodemailer.createTransporter({
+  return nodemailer.createTransport({
     host: process.env.SMTP_HOST,
     port: process.env.SMTP_PORT,
-    secure: false, // true for 465, false for other ports
+    secure: false,
     auth: {
       user: process.env.SMTP_USER,
       pass: process.env.SMTP_PASSWORD,
@@ -14,16 +13,15 @@ const createTransporter = () => {
   });
 };
 
-// Send password reset email
 const sendPasswordResetEmail = async (email, resetToken) => {
   const transporter = createTransporter();
-  
+
   const resetUrl = `${process.env.FRONTEND_URL}/reset-password?token=${resetToken}`;
-  
+
   const mailOptions = {
     from: `"CodeCollab" <${process.env.SMTP_USER}>`,
     to: email,
-    subject: 'Password Reset - CodeCollab',
+    subject: "Password Reset - CodeCollab",
     html: `
       <div style="max-width: 600px; margin: 0 auto; padding: 20px; font-family: Arial, sans-serif;">
         <h2 style="color: #3b82f6; text-align: center;">CodeCollab</h2>
@@ -48,22 +46,22 @@ const sendPasswordResetEmail = async (email, resetToken) => {
 
   try {
     await transporter.sendMail(mailOptions);
-    console.log('Password reset email sent successfully');
+    console.log("Password reset email sent successfully");
     return true;
   } catch (error) {
-    console.error('Error sending password reset email:', error);
-    throw new Error('Failed to send password reset email');
+    console.error("Error sending password reset email:", error);
+    throw new Error("Failed to send password reset email");
   }
 };
 
 // Send welcome email
 const sendWelcomeEmail = async (email, name) => {
   const transporter = createTransporter();
-  
+
   const mailOptions = {
     from: `"CodeCollab" <${process.env.SMTP_USER}>`,
     to: email,
-    subject: 'Welcome to CodeCollab!',
+    subject: "Welcome to CodeCollab!",
     html: `
       <div style="max-width: 600px; margin: 0 auto; padding: 20px; font-family: Arial, sans-serif;">
         <h2 style="color: #3b82f6; text-align: center;">CodeCollab</h2>
@@ -95,11 +93,11 @@ const sendWelcomeEmail = async (email, name) => {
 
   try {
     await transporter.sendMail(mailOptions);
-    console.log('Welcome email sent successfully');
+    console.log("Welcome email sent successfully");
     return true;
   } catch (error) {
-    console.error('Error sending welcome email:', error);
-    throw new Error('Failed to send welcome email');
+    console.error("Error sending welcome email:", error);
+    throw new Error("Failed to send welcome email");
   }
 };
 

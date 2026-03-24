@@ -1,6 +1,5 @@
 const pool = require("../config/db");
 
-// SQL queries to create tables
 const createTables = async () => {
   try {
     // Users table
@@ -56,6 +55,18 @@ const createTables = async () => {
       )
     `);
 
+    // Code files table
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS code_files (
+      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      room_id UUID REFERENCES rooms(id) ON DELETE CASCADE,
+      user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+      file_url TEXT NOT NULL,
+      language VARCHAR(50),
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
     console.log("All tables created successfully!");
   } catch (error) {
     console.error("Error creating tables:", error);
@@ -64,5 +75,4 @@ const createTables = async () => {
   }
 };
 
-// Run migrations
 createTables();

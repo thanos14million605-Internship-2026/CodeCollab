@@ -39,7 +39,6 @@ const CodeEditorPage = () => {
   } = useRoomStore();
 
   useEffect(() => {
-    // Join room when component mounts
     const initializeRoom = async () => {
       const result = await joinRoom(roomCode);
       if (result.success) {
@@ -53,7 +52,6 @@ const CodeEditorPage = () => {
 
     initializeRoom();
 
-    // Cleanup when component unmounts
     return () => {
       if (currentRoom) {
         leaveRoom(currentRoom.id);
@@ -208,7 +206,7 @@ const CodeEditorPage = () => {
               animate={{ opacity: 1, x: 0 }}
               className="flex-1"
             >
-              <CodeEditor roomCode={roomCode} />
+              <CodeEditor roomCode={currentRoom.id} />
             </motion.div>
           )}
 

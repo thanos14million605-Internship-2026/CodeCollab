@@ -1,22 +1,18 @@
 import { create } from "zustand";
 import { messageAPI } from "../utils/api";
 
-const useMessageStore = create((set, get) => ({
+const useMessageStore = create((set) => ({
   // State
   messages: [],
   isLoading: false,
   error: null,
 
-  // ✅ Create Message (DO NOT replace messages)
   createMessage: async (messageData) => {
     try {
       const response = await messageAPI.createMessage(messageData);
 
       if (response.success) {
         const newMessage = response.data;
-
-        // ⚠️ DO NOT update state here (important)
-        // Socket will handle real-time update
 
         return { success: true, message: newMessage };
       }
@@ -26,7 +22,6 @@ const useMessageStore = create((set, get) => ({
     }
   },
 
-  // ✅ Fetch messages
   getAllMessages: async (roomId) => {
     try {
       set({ isLoading: true, error: null });
@@ -53,7 +48,6 @@ const useMessageStore = create((set, get) => ({
     }
   },
 
-  // ✅ Add message from socket (IMPORTANT)
   addMessage: (message) => {
     set((state) => ({
       messages: [...state.messages, message],

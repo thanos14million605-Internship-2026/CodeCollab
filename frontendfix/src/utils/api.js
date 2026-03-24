@@ -10,7 +10,6 @@ const api = axios.create({
   },
 });
 
-// Request interceptor to add auth token
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem(STORAGE_KEYS.TOKEN);
@@ -24,20 +23,17 @@ api.interceptors.request.use(
   }
 );
 
-// Response interceptor to handle errors
 api.interceptors.response.use(
   (response) => {
     return response.data;
   },
   (error) => {
-    // Handle 401 Unauthorized
     if (error.response?.status === 401) {
       localStorage.removeItem(STORAGE_KEYS.TOKEN);
       localStorage.removeItem(STORAGE_KEYS.USER);
       window.location.href = "/signin";
     }
 
-    // Extract error message
     const message =
       error.response?.data?.message || error.message || "Network error";
 
@@ -45,7 +41,6 @@ api.interceptors.response.use(
   }
 );
 
-// Auth API calls
 export const authAPI = {
   register: (userData) => api.post("/auth/register", userData),
   login: (credentials) => api.post("/auth/login", credentials),
@@ -55,7 +50,6 @@ export const authAPI = {
   updateProfile: (userData) => api.put("/auth/profile", userData),
 };
 
-// Room API calls
 export const roomAPI = {
   createRoom: (roomData) => api.post("/rooms", roomData),
   getRoomByCode: (roomCode) => api.get(`/rooms/code/${roomCode}`),
@@ -72,7 +66,14 @@ export const messageAPI = {
   getAllMessages: (roomId) => api.get(`/messages/${roomId}`),
 };
 
-// Health check
+export const codeAPI = {
+  uploadPDF: (data) => api.post("/codes/upload-pdf", data),
+};
+
+export const submittedWorkAPI = {
+  getAll: () => api.get("/submitted-work/all"),
+};
+
 export const healthCheck = () => api.get("/health");
 
 export default api;

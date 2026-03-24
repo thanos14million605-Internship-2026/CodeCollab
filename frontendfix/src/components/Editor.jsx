@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { SUPPORTED_LANGUAGES, CODE_TEMPLATES } from "../utils/constants";
 import socketService from "../socket";
+import { useCodeStore } from "./../store/codeStore";
 import toast from "react-hot-toast";
 
 const CodeEditor = ({ roomCode, onLanguageChange }) => {
@@ -22,14 +23,33 @@ const CodeEditor = ({ roomCode, onLanguageChange }) => {
   const [isRunning, setIsRunning] = useState(false);
   const [showOutput, setShowOutput] = useState(false);
   const [copied, setCopied] = useState(false);
+  const { uploadCodePDF, isUploading } = useCodeStore();
   const editorRef = useRef(null);
   const outputRef = useRef(null);
 
-  // Handle editor mount
+  const handleUploadPDF = async () => {
+    try {
+      const result = await uploadCodePDF({
+        code,
+        language,
+        room_id: roomCode,
+      });
+
+      if (result.success) {
+        toast.success("PDF uploaded successfully!");
+
+        window.open(result.data.file_url, "_blank");
+      } else {
+        toast.error(result.error);
+      }
+    } catch (error) {
+      toast.error("Upload failed", error);
+    }
+  };
+
   const handleEditorDidMount = (editor, monaco) => {
     editorRef.current = editor;
 
-    // Configure editor options
     editor.updateOptions({
       fontSize: 14,
       fontFamily: 'Monaco, Menlo, "Ubuntu Mono", monospace',
@@ -42,12 +62,10 @@ const CodeEditor = ({ roomCode, onLanguageChange }) => {
     });
   };
 
-  // Handle code changes
   const handleCodeChange = useCallback(
     (value) => {
       setCode(value || "");
 
-      // Send code change to socket
       if (socketService.isSocketConnected()) {
         socketService.sendCodeChange(value, language);
       }
@@ -55,7 +73,6 @@ const CodeEditor = ({ roomCode, onLanguageChange }) => {
     [language]
   );
 
-  // Listen for code changes from other users
   useEffect(() => {
     const handleCodeChange = (event) => {
       const { code: newCode, language: newLanguage } = event.detail;
@@ -73,29 +90,24 @@ const CodeEditor = ({ roomCode, onLanguageChange }) => {
     return () => window.removeEventListener("code-change", handleCodeChange);
   }, [language]);
 
-  // Handle language change
   const handleLanguageChange = (newLanguage) => {
     setLanguage(newLanguage);
     setCode(CODE_TEMPLATES[newLanguage] || "");
     onLanguageChange?.(newLanguage);
   };
 
-  // Run code (mock implementation)
   const runCode = async () => {
     setIsRunning(true);
     setShowOutput(true);
 
     try {
-      // Mock code execution - in production, integrate with Judge0 or similar
       await new Promise((resolve) => setTimeout(resolve, 1500));
 
       let result = "";
 
-      // Simple mock execution based on language
       switch (language) {
         case "javascript":
           try {
-            // Create a safe execution context
             const func = new Function(code);
             const consoleOutput = [];
             const originalLog = console.log;
@@ -136,7 +148,6 @@ const CodeEditor = ({ roomCode, onLanguageChange }) => {
     }
   };
 
-  // Copy code to clipboard
   const copyCode = async () => {
     try {
       await navigator.clipboard.writeText(code);
@@ -144,11 +155,10 @@ const CodeEditor = ({ roomCode, onLanguageChange }) => {
       toast.success("Code copied to clipboard!");
       setTimeout(() => setCopied(false), 2000);
     } catch (error) {
-      toast.error("Failed to copy code");
+      toast.error("Failed to copy code", error);
     }
   };
 
-  // Download code
   const downloadCode = () => {
     const extensions = {
       javascript: "js",
@@ -173,29 +183,10 @@ const CodeEditor = ({ roomCode, onLanguageChange }) => {
     toast.success("Code downloaded successfully!");
   };
 
-  // Upload code from file
-  const uploadCode = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const content = e.target.result;
-        setCode(content);
-        if (editorRef.current) {
-          editorRef.current.setValue(content);
-        }
-        toast.success("Code uploaded successfully!");
-      };
-      reader.readAsText(file);
-    }
-  };
-
   return (
     <div className="editor-container h-full flex flex-col">
-      {/* Toolbar */}
       <div className="editor-toolbar">
         <div className="flex items-center gap-4">
-          {/* Language Selector */}
           <select
             value={language}
             onChange={(e) => handleLanguageChange(e.target.value)}
@@ -208,7 +199,6 @@ const CodeEditor = ({ roomCode, onLanguageChange }) => {
             ))}
           </select>
 
-          {/* Action Buttons */}
           <div className="flex items-center gap-2">
             <motion.button
               whileHover={{ scale: 1.05 }}
@@ -254,22 +244,26 @@ const CodeEditor = ({ roomCode, onLanguageChange }) => {
               <Download className="w-4 h-4" />
             </motion.button>
 
-            <label className="relative">
-              <input
-                type="file"
-                accept=".js,.py,.java,.cpp,.html,.css,.txt"
-                onChange={uploadCode}
-                className="hidden"
-              />
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors duration-200"
-                title="Upload code"
-              >
-                <Upload className="w-4 h-4" />
-              </motion.button>
-            </label>
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={handleUploadPDF}
+              disabled={isUploading}
+              className="flex items-center gap-2 px-3 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white rounded-lg text-sm font-medium transition-colors duration-200"
+              title="Upload as PDF"
+            >
+              {isUploading ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  Uploading...
+                </>
+              ) : (
+                <>
+                  <Upload className="w-4 h-4" />
+                  PDF
+                </>
+              )}
+            </motion.button>
           </div>
         </div>
 
@@ -289,9 +283,7 @@ const CodeEditor = ({ roomCode, onLanguageChange }) => {
         </div>
       </div>
 
-      {/* Editor and Output Container */}
       <div className="flex-1 flex">
-        {/* Code Editor */}
         <div className={`${showOutput ? "w-1/2" : "w-full"} relative`}>
           <Editor
             height="100%"

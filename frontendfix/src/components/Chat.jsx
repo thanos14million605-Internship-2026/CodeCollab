@@ -14,17 +14,14 @@ const Chat = ({ roomId, participants }) => {
   const { messages, getAllMessages, createMessage, addMessage } =
     useMessageStore();
 
-  // Auto scroll
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // Fetch messages
   useEffect(() => {
     if (roomId) getAllMessages(roomId);
   }, [roomId]);
 
-  // Socket
   useEffect(() => {
     const handleChatMessage = (event) => addMessage(event.detail);
     window.addEventListener("chat-message", handleChatMessage);
@@ -55,7 +52,6 @@ const Chat = ({ roomId, participants }) => {
 
   return (
     <div className="flex flex-col h-full min-h-0 bg-white border rounded-lg">
-      {/* Header */}
       <div className="flex justify-between items-center p-4 border-b shrink-0">
         <div className="flex items-center gap-2">
           <MessageSquare size={18} />
@@ -67,7 +63,6 @@ const Chat = ({ roomId, participants }) => {
         </div>
       </div>
 
-      {/* Messages (SCROLLABLE) */}
       <div className="flex-1 min-h-0 overflow-y-auto px-4 py-3 space-y-3 chat-scroll">
         <AnimatePresence>
           {messages.map((message) => {
@@ -111,7 +106,6 @@ const Chat = ({ roomId, participants }) => {
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Input */}
       <div className="p-3 border-t bg-white shrink-0">
         <form onSubmit={sendMessage} className="flex gap-2">
           <button type="button">
