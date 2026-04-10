@@ -275,12 +275,12 @@ const SignIn = () => {
             </div>
           </motion.div>
 
-          {/* Demo Account Info */}
+          {/* Demo Account Info
           <motion.div variants={itemVariants} className="mt-6 text-center">
             <p className="text-sm text-gray-500">
               Demo Account: demo@codecollab.com / password123
             </p>
-          </motion.div>
+          </motion.div> */}
         </motion.div>
       </div>
     </div>
