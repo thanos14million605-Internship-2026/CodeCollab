@@ -29,7 +29,7 @@ socketHandler(io);
 
 console.log(process.env.NODE_ENV);
 if (process.env.NODE_ENV === "production") {
-  const frontendPath = path.join(__dirname, "..", "frontendfix", "dist");
+  const frontendPath = path.join(__dirname, "..", "frontend", "dist");
 
   app.use(express.static(frontendPath));
 
